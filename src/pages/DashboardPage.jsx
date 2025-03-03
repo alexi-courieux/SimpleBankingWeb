@@ -1,79 +1,13 @@
 import React, { Component } from 'react';
-import { useReactTable, getCoreRowModel, getSortedRowModel } from '@tanstack/react-table';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, TextField, Box } from '@mui/material';
-import PropTypes from 'prop-types';
-
-const columns = [
-    { accessorKey: 'accountNumber', header: 'Account Number' },
-    { accessorKey: 'accountHolder', header: 'Holder' },
-    { accessorKey: 'balance', header: 'Balance' },
-];
-
-const DashboardTable = ({ data, page, pageSize, totalRows, onPageChange, onPageSizeChange, onSortChange, sortBy, sortDir }) => {
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        onSortingChange: onSortChange,
-    });
-
-    return (
-        <>
-            <TableContainer component={Paper} sx={{ my: 4, width: '100%' }}>
-                <Table sx={{ width: '100%' }}>
-                    <TableHead>
-                        {table.getHeaderGroups().map(headerGroup => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map(header => (
-                                    <TableCell key={header.id} sx={{ textAlign: 'center' }}>
-                                        {header.isPlaceholder ? null : header.column.columnDef.header}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        ))}
-                    </TableHead>
-                    <TableBody>
-                        {table.getRowModel().rows.map(row => (
-                            <TableRow key={row.id}>
-                                {row.getVisibleCells().map(cell => (
-                                    <TableCell key={cell.id} sx={{ textAlign: 'center' }}>
-                                        {cell.column.columnDef.cell(cell.getContext())}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <TablePagination
-                component="div"
-                count={totalRows}
-                page={page}
-                onPageChange={onPageChange}
-                rowsPerPage={pageSize}
-                onRowsPerPageChange={onPageSizeChange}
-            />
-        </>
-    );
-};
-
-DashboardTable.propTypes = {
-    data: PropTypes.array.isRequired,
-    page: PropTypes.number.isRequired,
-    pageSize: PropTypes.number.isRequired,
-    totalRows: PropTypes.number.isRequired,
-    onPageChange: PropTypes.func.isRequired,
-    onPageSizeChange: PropTypes.func.isRequired,
-    onSortChange: PropTypes.func.isRequired,
-    sortBy: PropTypes.string.isRequired,
-    sortDir: PropTypes.string.isRequired,
-};
+import { fetchAccounts } from '../services/accountService';
+import DashboardTable from '../components/DashboardTable';
+import { TextField, Box } from '@mui/material';
 
 class DashboardPage extends Component {
     state = {
         data: [],
         loading: true,
+        error: null,
         page: 0,
         pageSize: 10,
         totalRows: 0,
@@ -89,12 +23,11 @@ class DashboardPage extends Component {
     fetchData = async () => {
         const { page, pageSize, sortBy, sortDir, filter } = this.state;
         try {
-            const response = await fetch(`http://172.23.41.51:8080/api/v1/account?page=${page + 1}&size=${pageSize}&sortBy=${sortBy}&sortDir=${sortDir}&filter=${filter}`);
-            const result = await response.json();
-            this.setState({ data: result.accounts, totalRows: result.totalItems, loading: false });
-            console.log('Data fetched:', result);
+            const result = await fetchAccounts(page, pageSize, sortBy, sortDir, filter);
+            this.setState({ data: result.accounts, totalRows: result.totalItems });
         } catch (error) {
-            console.error('Error fetching data:', error);
+            this.setState({ error });
+        } finally {
             this.setState({ loading: false });
         }
     };
@@ -111,18 +44,14 @@ class DashboardPage extends Component {
         this.setState({ filter: event.target.value, page: 0 }, this.fetchData);
     };
 
-    handleSortChange = (columnId, direction) => {
-        this.setState({ sortBy: columnId, sortDir: direction }, this.fetchData);
+    handleSortChange = (sortBy) => {
+        console.log('sortBy', sortBy);
+        const sortDir = sortBy[0].desc ? 'desc' : 'asc';
+        this.setState({ sortBy: sortBy[0].id, sortDir }, this.fetchData);
     };
 
     render() {
-        const { data, loading, page, pageSize, totalRows, filter } = this.state;
-
-        console.log('Data:', data);
-        console.log('Loading:', loading);
-        console.log('Page:', page);
-        console.log('Page size:', pageSize);
-        console.log('Total rows:', totalRows);
+        const { data, loading, page, pageSize, totalRows, filter, sortBy, sortDir } = this.state;
 
         if (loading) {
             return <div>Loading...</div>;
@@ -147,8 +76,8 @@ class DashboardPage extends Component {
                     onPageChange={this.handlePageChange}
                     onPageSizeChange={this.handlePageSizeChange}
                     onSortChange={this.handleSortChange}
-                    sortBy={this.state.sortBy}
-                    sortDir={this.state.sortDir}
+                    sortBy={sortBy}
+                    sortDir={sortDir}
                 />
             </div>
         );
