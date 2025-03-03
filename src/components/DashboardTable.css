@@ -1,0 +1,6 @@
+.table-footer {
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    z-index: 1;
+}

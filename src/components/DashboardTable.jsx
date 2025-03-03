@@ -2,6 +2,7 @@ import { useReactTable, getCoreRowModel, getSortedRowModel } from '@tanstack/rea
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, TableSortLabel } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useMemo } from 'react';
+import './DashboardTable.css';
 
 const columns = [
     { accessorKey: 'accountNumber', header: 'Account Number' },
@@ -84,6 +85,7 @@ const DashboardTable = ({ data, page, pageSize, totalRows, onPageChange, onPageS
                 </Table>
             </TableContainer>
             <TablePagination
+                className='table-footer'
                 component="div"
                 count={totalRows}
                 page={page}
