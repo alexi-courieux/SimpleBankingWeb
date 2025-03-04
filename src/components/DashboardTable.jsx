@@ -14,26 +14,29 @@ const TableHeader = ({ table, onSortChange }) => (
     <TableHead>
         {table.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                    <TableCell
-                        key={header.id}
-                        sx={{ textAlign: 'center', cursor: 'pointer' }}
-                        sortDirection={header.column.getIsSorted() ? (header.column.getIsSorted() === 'desc' ? 'desc' : 'asc') : false}
-                    >
-                        {header.isPlaceholder ? null : (
-                            <TableSortLabel
-                                active={header.column.getIsSorted()}
-                                direction={header.column.getIsSorted() === 'desc' ? 'desc' : 'asc'}
-                                onClick={() => {
-                                    const isDesc = header.column.getIsSorted() === 'desc';
-                                    onSortChange([{ id: header.column.id, desc: !isDesc }]);
-                                }}
-                            >
-                                {header.column.columnDef.header}
-                            </TableSortLabel>
-                        )}
-                    </TableCell>
-                ))}
+                {headerGroup.headers.map(header => {
+                    const sortDir = header.column.getIsSorted() === 'desc' ? 'desc' : 'asc'
+                    return (
+                        <TableCell
+                            key={header.id}
+                            sx={{ textAlign: 'center', cursor: 'pointer' }}
+                            sortDirection={header.column.getIsSorted() ? (sortDir) : false}
+                        >
+                            {header.isPlaceholder ? null : (
+                                <TableSortLabel
+                                    active={header.column.getIsSorted()}
+                                    direction={header.column.getIsSorted() === 'desc' ? 'desc' : 'asc'}
+                                    onClick={() => {
+                                        const isDesc = header.column.getIsSorted() === 'desc';
+                                        onSortChange([{ id: header.column.id, desc: !isDesc }]);
+                                    }}
+                                >
+                                    {header.column.columnDef.header}
+                                </TableSortLabel>
+                            )}
+                        </TableCell>
+                    );
+                })}
             </TableRow>
         ))}
     </TableHead>
@@ -78,6 +81,7 @@ const DashboardTable = ({ data, page, pageSize, totalRows, onPageChange, onPageS
 
     return (
         <>
+
             <TableContainer component={Paper} sx={{ my: 4, width: '100%' }}>
                 <Table sx={{ width: '100%' }}>
                     <TableHeader table={table} onSortChange={onSortChange} />
