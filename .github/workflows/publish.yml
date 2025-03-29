@@ -7,6 +7,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+      packages: write
 
     steps:
       # Checkout the repository
@@ -22,7 +25,7 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       # Build the project
       - name: Build the project
