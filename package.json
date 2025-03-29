@@ -5,6 +5,10 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexi-courieux/simplebanking-web.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
